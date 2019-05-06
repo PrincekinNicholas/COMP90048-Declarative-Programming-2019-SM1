@@ -1,6 +1,6 @@
 {-|
-    Full Name: Nian Li
-    Student Id: 819497
+    Author: Nian Li
+    Date: 12, April, 2019
     Purpose of the file: 
         This file can be used to guess the correct three-pitch music chord.
         The definition of 'Chord' is a list of Pitch, and its length must be 3
