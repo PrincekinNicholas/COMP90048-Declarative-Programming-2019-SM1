@@ -28,11 +28,11 @@ I used [this](http://www.swi-prolog.org/download/stable).
 If you just want to test a specific function when your coding, you can use the code below in the terminal. 
 Then you can test whatever functions you wrote:
 ```bash
-swipl
+swipl.
 ```
 
-Then, using bracket such as,
+Then, using bracket, for example you have a file called "test.pl", 
 ```bash
-[your_project_name].
+[test].
 ``` 
 without ".pl" to load your project.
