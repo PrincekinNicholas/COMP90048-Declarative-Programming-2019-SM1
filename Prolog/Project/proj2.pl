@@ -15,7 +15,7 @@
  * details:
  * 
  *  A maths puzzle is a square grid of squares, each to be filled in 
- *          with a single digit 1 – 9 (zero is not permitted)
+ *          with a single digit from 1 to 9 (zero is not permitted)
  *          satisfying these constraints:
  *  - each row and each column contains no repeated digits;
  *  - all squares on the diagonal line from upper left to lower right 
@@ -36,6 +36,7 @@
  */
 
 :- use_module(library(clpfd)).
+:- use_module(library(apply)).
 
 
 /*
@@ -52,10 +53,36 @@ Finally, grounding them if the variables are limited
 */
 puzzle_solution(Puzzle):-
     maplist(same_length(Puzzle), Puzzle),
-    diagonalRule(Puzzle),
+    digits(Puzzle),
     noRepeatRule(Puzzle),
+    diagonalRule(Puzzle),
     mathRule(Puzzle),
     termGround(Puzzle).
+
+/*
+Both functions digits/1 and digit_row/1 are making sure
+    that all element is a number between 1 and 9.
+*/
+digits(Puzzle) :-
+    Puzzle = [[_|Row0]|Rows],
+    maplist(#=<(1), Row0),
+    maplist(digit_row, Rows).
+
+digit_row([Heading|Row]) :-
+    Heading #>= 1,
+    Row ins 1..9.
+
+
+/*
+The function noRepeatRule/1 is making sure that
+    all element in a row or column are different respectively.
+*/
+noRepeatRule([_|Rest]):-
+    transpose(Rest,[_|Transpose]),
+    maplist(all_distinct,Transpose),
+    transpose(Transpose,Rows),
+    maplist(all_distinct,Rows).
+
 
 /*
 This function is to ensure that all terms are ground.
@@ -75,50 +102,8 @@ diagonalRule([_|Rest]):-
 diagonalRuleHelper([],_,_).
 diagonalRuleHelper([List|Rest], Index, Element):-
     nth0(Index, List, Element),
-    NewIndex is Index +1,
+    NewIndex #= Index +1,
     diagonalRuleHelper(Rest, NewIndex, Element).
-
-
-/*
-The following functions are implemented for the constraint that
-    each row and each column contains no repeated digits.
-*/
-noRepeatRule(Ls):-
-    checkCol(Ls),
-    checkRow(Ls).
-
-/*
-The following 2 functions are checking cols and rows respectively.
-*/
-checkCol(Ls):-
-    transpose(Ls, Transpose),
-    checkRow(Transpose).
-
-checkRow([_|Rest]):-
-    removeFstElem(Rest).
-
-/* the function removeFstElem/1 is to remove the header. */
-removeFstElem([]).
-removeFstElem([[_|Tail]|Rest]):-
-    checkDiff(Tail),
-    removeFstElem(Rest).
-    
-/*
-The function checkDiff/1 takes a List as the arguement.
-And it check that are all elements in the list different.
-*/
-checkDiff([]).    
-checkDiff([First|Rest]):-
-    different_from(Rest,First),
-    checkDiff(Rest).
-
-/*
-This function different_from/2 takes a List and a Element.
-It will check is this Element different with all elements within the List.
-*/
-different_from([], _).
-different_from([H|T], E) :- E \= H, different_from(T, E).
-
 
 /*
 The following functions are implemented for the constraint that
@@ -159,7 +144,7 @@ It would sum all elements in the list,
 */
 sumOfList([Num], Num).
 sumOfList([Num1, Num2| Rest], Total):-
-    Sum is Num1+Num2,
+    Sum #= Num1+Num2,
     sumOfList([Sum| Rest], Total).
 
 /*
@@ -169,5 +154,5 @@ It would computer the product of all elements in the list,
 */
 productOfList([Num], Num).
 productOfList([Num1, Num2| Rest], Total):-
-    Product is Num1*Num2,
+    Product #= Num1*Num2,
     productOfList([Product| Rest], Total).
